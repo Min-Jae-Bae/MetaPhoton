@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerMove : MonoBehaviour
+public class PlayerMove : MonoBehaviourPun
 {
     // 가기 위한 속도가 필요한다.
     public float speed = 5f;
@@ -22,38 +23,42 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
-        // WASD 키를 누르면 앞뒤좌우로 움직이고 싶다.
-        float hAxis = Input.GetAxis("Horizontal");
-        float vAxis = Input.GetAxis("Vertical");
-
-        // 가는 방향이 필요하다.
-
-        Vector3 dirH = transform.right * hAxis;
-        Vector3 dirV = transform.forward * vAxis;
-        Vector3 dir = dirH + dirV;
-
-        // 속도를 1로 만든다.
-        dir.Normalize();
-
-
-
-        // 만약 땅에 닿아있다면
-        if (cc.isGrounded == true)
+        //내가 만든 플레이어라면
+        if (photonView.IsMine)
         {
-            // yVelocity를 0으로 하자
-            yVelocity = 0;
-        }
+            // WASD 키를 누르면 앞뒤좌우로 움직이고 싶다.
+            float hAxis = Input.GetAxis("Horizontal");
+            float vAxis = Input.GetAxis("Vertical");
 
-        // 스페이스바를 누르면 점프를 하고 싶다.
-        if (Input.GetButtonDown("Jump"))
-        {
-            yVelocity = jumpPower;
-        }
-        yVelocity += gravity * Time.deltaTime;
-        dir.y = yVelocity;
+            // 가는 방향이 필요하다.
+
+            Vector3 dirH = transform.right * hAxis;
+            Vector3 dirV = transform.forward * vAxis;
+            Vector3 dir = dirH + dirV;
+
+            // 속도를 1로 만든다.
+            dir.Normalize();
 
 
-        // 플레이어를 움직인다.
-        cc.Move(dir * speed * Time.deltaTime);
+
+            // 만약 땅에 닿아있다면
+            if (cc.isGrounded == true)
+            {
+                // yVelocity를 0으로 하자
+                yVelocity = 0;
+            }
+
+            // 스페이스바를 누르면 점프를 하고 싶다.
+            if (Input.GetButtonDown("Jump"))
+            {
+                yVelocity = jumpPower;
+            }
+            yVelocity += gravity * Time.deltaTime;
+            dir.y = yVelocity;
+
+
+            // 플레이어를 움직인다.
+            cc.Move(dir * speed * Time.deltaTime);
+        } 
     }
 }

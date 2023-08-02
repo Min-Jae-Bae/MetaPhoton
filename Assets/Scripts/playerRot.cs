@@ -1,15 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class playerRot : MonoBehaviour
+public class playerRot : MonoBehaviourPun
 {
     // 누적 값
     float rotX, rotY;
     private float speed = 200f;
     public Camera trCam;
+
+    void Start()
+    {
+        //내가 생성한 플레이어 일때만 카메라를 활성화 하자
+        if (photonView.IsMine)
+        {
+            trCam.gameObject.SetActive(true);
+        }
+
+    }
     void Update()
     {
+        // 내것이 아닐 때 나간다.
+        if (!photonView.IsMine) return;
+
         //마우스의 움직임따라 플레이를 좌우 회전하고
         float mx = Input.GetAxis("Mouse X");
         float my = Input.GetAxis("Mouse Y");
