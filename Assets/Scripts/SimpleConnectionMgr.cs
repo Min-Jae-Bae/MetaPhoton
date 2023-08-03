@@ -44,7 +44,7 @@ public class SimpleConnectionMgr : MonoBehaviourPunCallbacks
 
         // 방 생성 또는 참여
         RoomOptions roomOption = new RoomOptions();
-        PhotonNetwork.JoinOrCreateRoom("Meta_unity", roomOption, TypedLobby.Default);
+        PhotonNetwork.JoinOrCreateRoom("meta_unity_room", roomOption, TypedLobby.Default);
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Bomb : MonoBehaviour
 {
     //총알을 날라가게 하고 싶다.
@@ -11,8 +12,13 @@ public class Bomb : MonoBehaviour
 
     void Update()
     {
-        //계속 앞으로 가고 싶다.
         transform.position += transform.forward * speed * Time.deltaTime;
+        //내가 쓴 총알만 움직이게 하고 싶다.
+        //계속 앞으로 가고 싶다.
+ /*       if (photonView.IsMine)
+        {
+            transform.position += transform.forward * speed * Time.deltaTime; 
+        }*/
     }
 
     //트리거 발생시 삭제 시키고 싶다
@@ -27,7 +33,12 @@ public class Bomb : MonoBehaviour
         // 가져온 파티클의 기능이 play 를 실행하자
         ps.Play();
 
-        //나를 삭제시키고 싶다.
         Destroy(gameObject);
+/*        if (photonView.IsMine)
+        {
+            //나를 삭제시키고 싶다.
+            PhotonNetwork.Destroy(gameObject); 
+        }
+*/
     }
 }

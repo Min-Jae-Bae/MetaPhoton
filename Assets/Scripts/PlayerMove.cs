@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class PlayerMove : MonoBehaviourPun
+public class PlayerMove : MonoBehaviourPun, IPunObservable
 {
     // 가기 위한 속도가 필요한다.
     public float speed = 5f;
@@ -13,7 +13,12 @@ public class PlayerMove : MonoBehaviourPun
     float gravity = -9.81f;
     // y축 속력
     float yVelocity = 0;
+
+    Vector3 receivePos;
+    Quaternion receiveRot = Quaternion.identity;
+
     CharacterController cc;
+    private float lerpSpeed = 50;
 
     void Start()
     {
@@ -59,6 +64,34 @@ public class PlayerMove : MonoBehaviourPun
 
             // 플레이어를 움직인다.
             cc.Move(dir * speed * Time.deltaTime);
-        } 
+        }
+        //나의 Player가 아니라면
+        else
+        {
+            //위치 보정
+            transform.position = Vector3.Lerp(transform.position, receivePos, lerpSpeed * Time.deltaTime);
+
+            //회전값 보정
+            transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, lerpSpeed * Time.deltaTime);
+        }
     }
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        //내 player면
+        if (stream.IsWriting)
+        {
+            //나의 위치 값을 보낸다
+            stream.SendNext(transform.position);
+            //나의 회전값을 보낸다.
+            stream.SendNext(transform.rotation);
+        }
+        //내 Player라면
+        else
+        {
+            //위치, 회전을 받자
+            receivePos = (Vector3)stream.ReceiveNext();
+            receiveRot = (Quaternion)stream.ReceiveNext();
+        }
+    }
+
 }
