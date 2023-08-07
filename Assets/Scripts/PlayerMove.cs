@@ -1,32 +1,39 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
+using TMPro;
+using UnityEngine;
 
 public class PlayerMove : MonoBehaviourPun, IPunObservable
 {
     // 가기 위한 속도가 필요한다.
     public float speed = 5f;
+
     // 점프 파워
-    float jumpPower = 5;
+    private float jumpPower = 5;
+
     // 중력
-    float gravity = -9.81f;
+    private float gravity = -9.81f;
+
     // y축 속력
-    float yVelocity = 0;
+    private float yVelocity = 0;
 
-    Vector3 receivePos;
-    Quaternion receiveRot = Quaternion.identity;
+    private Vector3 receivePos;
+    private Quaternion receiveRot = Quaternion.identity;
 
-    CharacterController cc;
+    private CharacterController cc;
     private float lerpSpeed = 50;
 
-    void Start()
+    public TextMeshProUGUI nickName;
+
+    private void Start()
     {
         //Character Controller 가져오자
         cc = GetComponent<CharacterController>();
+
+        //닉네임 설정
+        nickName.text = photonView.Owner.NickName;
     }
 
-    void Update()
+    private void Update()
     {
         //내가 만든 플레이어라면
         if (photonView.IsMine)
@@ -44,8 +51,6 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             // 속도를 1로 만든다.
             dir.Normalize();
 
-
-
             // 만약 땅에 닿아있다면
             if (cc.isGrounded == true)
             {
@@ -61,7 +66,6 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             yVelocity += gravity * Time.deltaTime;
             dir.y = yVelocity;
 
-
             // 플레이어를 움직인다.
             cc.Move(dir * speed * Time.deltaTime);
         }
@@ -75,6 +79,7 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, lerpSpeed * Time.deltaTime);
         }
     }
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         //내 player면
@@ -93,5 +98,4 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             receiveRot = (Quaternion)stream.ReceiveNext();
         }
     }
-
 }

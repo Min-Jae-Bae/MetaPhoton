@@ -1,22 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class PlayerFire : MonoBehaviourPun
 {
     // 폭탄 공장
     public GameObject bombFactory;
+
     public GameObject fragmentFactory;
 
-    void Start()
+    private void Start()
     {
         //내가 만든 플레이어가 아닐 때
         if (photonView.IsMine) enabled = false;
         //playerFire 컴포넌트를 비활성화 한다
     }
 
-    void Update()
+    private void Update()
     {
         //1번 키를 누르면
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -29,27 +28,24 @@ public class PlayerFire : MonoBehaviourPun
             photonView.RPC(nameof(FireBulletByRpc), RpcTarget.All, pos, forward);
         }
 
-
         //2번키 누르면
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-
             photonView.RPC(nameof(FireRayByRpc), RpcTarget.All, Camera.main.transform.position, Camera.main.transform.forward);
         }
     }
 
-    void FireBulletByInstantiate()
+    private void FireBulletByInstantiate()
     {
         Vector3 pos = Camera.main.transform.position + Camera.main.transform.forward;
 
         Quaternion rot = Camera.main.transform.rotation;
         //폭탄공장에서 폭탄을 만든다.
         GameObject bomb = PhotonNetwork.Instantiate("Bomb", pos, rot);
-
     }
 
     [PunRPC]
-    void FireBulletByRpc(Vector3 firePos, Vector3 fireForward)
+    private void FireBulletByRpc(Vector3 firePos, Vector3 fireForward)
     {
         GameObject bomb = Instantiate(bombFactory);
         bomb.transform.position = firePos;
@@ -57,7 +53,7 @@ public class PlayerFire : MonoBehaviourPun
     }
 
     [PunRPC]
-    void FireRayByRpc(Vector3 firePos, Vector3 fireForward)
+    private void FireRayByRpc(Vector3 firePos, Vector3 fireForward)
     {
         Ray ray = new Ray(firePos, fireForward);
         RaycastHit hitInfo;
@@ -71,6 +67,14 @@ public class PlayerFire : MonoBehaviourPun
             fragment.transform.forward = hitInfo.normal;
             //2초 뒤에 파편효과를 파괴하자
             Destroy(fragment, 2);
+
+            //만약에 맞은놈의 이름이 플레이어를 포함하고 있다면
+            if (hitInfo.transform.gameObject.name.Contains("Player"))
+            {
+                //플레이어가 가지고 있는 PlayerHP 컴포넌트를 가져오자
+                PlayerHP hp = hitInfo.transform.GetComponent<PlayerHP>();
+                //가져온 컴포넌트의 updateHP 함수를 실행한다.
+            }
         }
     }
 }
