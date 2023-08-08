@@ -38,6 +38,8 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
         //내가 만든 플레이어라면
         if (photonView.IsMine)
         {
+            //.만약에 마우스 커서가 활성화 되어 있으면 함수를 나가자
+            if (Cursor.visible == true) return;
             // WASD 키를 누르면 앞뒤좌우로 움직이고 싶다.
             float hAxis = Input.GetAxis("Horizontal");
             float vAxis = Input.GetAxis("Vertical");

@@ -6,20 +6,21 @@ using Photon.Pun;
 public class playerRot : MonoBehaviourPun
 {
     // 누적 값
-    float rotX, rotY;
-    private float speed = 200f;
-    public Camera trCam;
+    private float rotX, rotY;
 
-    void Start()
+    private float speed = 200f;
+    public Transform trCam;
+
+    private void Start()
     {
         //내가 생성한 플레이어 일때만 카메라를 활성화 하자
         if (photonView.IsMine)
         {
-            trCam.gameObject.SetActive(true);
+            trCam.GetChild(0).gameObject.SetActive(true);
         }
-
     }
-    void Update()
+
+    private void Update()
     {
         // 내것이 아닐 때 나간다.
         if (!photonView.IsMine) return;
