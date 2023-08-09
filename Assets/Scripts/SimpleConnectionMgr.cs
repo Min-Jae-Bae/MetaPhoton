@@ -1,20 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
 public class SimpleConnectionMgr : MonoBehaviourPunCallbacks
 {
-    void Start()
+    private void Start()
     {
         //포톤 환결설정을 기반으로 접속을 시도
         PhotonNetwork.ConnectUsingSettings();
     }
 
-    void Update()
+    private void Update()
     {
-        
     }
 
     //마스터 서버 접속 완료
@@ -28,7 +24,7 @@ public class SimpleConnectionMgr : MonoBehaviourPunCallbacks
     }
 
     //로비진입
-    void JoinLobby()
+    private void JoinLobby()
     {
         //닉네임 설정
         PhotonNetwork.NickName = "배민재";
@@ -44,6 +40,9 @@ public class SimpleConnectionMgr : MonoBehaviourPunCallbacks
 
         // 방 생성 또는 참여
         RoomOptions roomOption = new RoomOptions();
+
+        //방에 들어올 수 있는 최대 인원
+        roomOption.MaxPlayers = 20;
         PhotonNetwork.JoinOrCreateRoom("meta_unity_room", roomOption, TypedLobby.Default);
     }
 
@@ -61,5 +60,4 @@ public class SimpleConnectionMgr : MonoBehaviourPunCallbacks
         // 게임씬으로 이동
         PhotonNetwork.LoadLevel("GameScene");
     }
-
 }

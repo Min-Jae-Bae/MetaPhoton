@@ -24,13 +24,33 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
 
     public TextMeshProUGUI nickName;
 
+    //UI Canvas
+    public GameObject myUI;
+
+    //animator를 가져온다.
+    public Animator anim;
+
+    //가로 방향을 결정
+    private float h, v;
+
+    //점프 중이니??
+    private bool isJump = false;
+
     private void Start()
     {
         //Character Controller 가져오자
         cc = GetComponent<CharacterController>();
 
-        //닉네임 설정
-        nickName.text = photonView.Owner.NickName;
+        //만약에 내가 만든 player라면
+        if (photonView.IsMine)
+        {
+            //UI를 비활성화 하자
+            myUI.SetActive(false);
+        }
+        else
+        {//닉네임 설정
+            nickName.text = photonView.Owner.NickName;
+        }
     }
 
     private void Update()
@@ -41,13 +61,13 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             //.만약에 마우스 커서가 활성화 되어 있으면 함수를 나가자
             if (Cursor.visible == true) return;
             // WASD 키를 누르면 앞뒤좌우로 움직이고 싶다.
-            float hAxis = Input.GetAxis("Horizontal");
-            float vAxis = Input.GetAxis("Vertical");
+            h = Input.GetAxis("Horizontal");
+            v = Input.GetAxis("Vertical");
 
             // 가는 방향이 필요하다.
 
-            Vector3 dirH = transform.right * hAxis;
-            Vector3 dirV = transform.forward * vAxis;
+            Vector3 dirH = transform.right * h;
+            Vector3 dirV = transform.forward * v;
             Vector3 dir = dirH + dirV;
 
             // 속도를 1로 만든다.
@@ -58,12 +78,27 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             {
                 // yVelocity를 0으로 하자
                 yVelocity = 0;
+
+                //만약에 점프 중이라면
+                if (isJump == true)
+                {                //착지 트리거 발생
+                    photonView.RPC(nameof(SetTriggerRpc), RpcTarget.All, "Land");
+
+                    //점프 아니라고 설정
+                    isJump = false;
+                }
             }
 
             // 스페이스바를 누르면 점프를 하고 싶다.
             if (Input.GetButtonDown("Jump"))
             {
                 yVelocity = jumpPower;
+
+                //점프 트리거 실행
+                photonView.RPC(nameof(SetTriggerRpc), RpcTarget.All, "Jump");
+
+                //점프 중이라고 설정
+                isJump = true;
             }
             yVelocity += gravity * Time.deltaTime;
             dir.y = yVelocity;
@@ -80,6 +115,15 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             //회전값 보정
             transform.rotation = Quaternion.Lerp(transform.rotation, receiveRot, lerpSpeed * Time.deltaTime);
         }
+
+        //애니메이션 파라미터 값 전달
+        anim.SetFloat("Horizontal", h);
+
+        //
+        anim.SetFloat("Vertical", v);
+
+        //나의 photonView 게임매니저에 알려주자
+        GameManager.Instance.AddPlayer(photonView);
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -91,6 +135,10 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             stream.SendNext(transform.position);
             //나의 회전값을 보낸다.
             stream.SendNext(transform.rotation);
+            //h값 보낸다.
+            stream.SendNext(h);
+            //y값 보낸다.
+            stream.SendNext(v);
         }
         //내 Player라면
         else
@@ -98,6 +146,16 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
             //위치, 회전을 받자
             receivePos = (Vector3)stream.ReceiveNext();
             receiveRot = (Quaternion)stream.ReceiveNext();
+            //h값 받자
+            h = (float)stream.ReceiveNext();
+            //v값 받자
+            v = (float)stream.ReceiveNext();
         }
+    }
+
+    [PunRPC]
+    private void SetTriggerRpc(string parameter)
+    {
+        anim.SetTrigger(parameter);
     }
 }

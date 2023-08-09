@@ -20,6 +20,10 @@ public class PlayerFire : MonoBehaviourPun
         //.만약에 마우스 커서가 활성화 되어 있으면 함수를 나가자
         if (Cursor.visible == true) return;
         //1번 키를 누르면
+
+        //만약에 내가 총을 쏠 수 있다면 총을 발사한다.
+        if (canFire == false) return;
+
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             //FireBulletByInstantiate();
@@ -78,5 +82,15 @@ public class PlayerFire : MonoBehaviourPun
                 //가져온 컴포넌트의 updateHP 함수를 실행한다.
             }
         }
+        //턴을 넘긴다.
+    }
+
+    //내가 총을 쏠 수 있는지 판단
+    private bool canFire;
+
+    [PunRPC]
+    private void ChangeTurnRpc(bool fire)
+    {
+        canFire = fire;
     }
 }

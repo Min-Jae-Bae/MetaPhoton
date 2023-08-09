@@ -494,6 +494,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 5
   nickName: {fileID: 8929121737033188870}
+  myUI: {fileID: 5188563547591074682}
+  anim: {fileID: 2714489641836938958}
 --- !u!114 &7636738496144275155
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -801,8 +803,17 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 7cacc14a50d9a2a4f9cff1c5c6703bac, type: 2}
+    - target: {fileID: 9500000, guid: 860793eb3324391468f1c120a75ec049, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 860793eb3324391468f1c120a75ec049, type: 3}
+--- !u!95 &2714489641836938958 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9500000, guid: 860793eb3324391468f1c120a75ec049, type: 3}
+  m_PrefabInstance: {fileID: 2714489641846436782}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2714489641846565228 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400066, guid: 860793eb3324391468f1c120a75ec049, type: 3}
