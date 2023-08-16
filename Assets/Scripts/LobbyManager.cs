@@ -2,6 +2,8 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,11 +15,21 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     //Input Max Player
     public InputField inputMaxPlayer;
 
+    public InputField inputPassword;
+
     //방 참여 버튼
     public Button btnJoinRoom;
 
     //방 생성 버튼
     public Button btnCreateRoom;
+
+    //RoomItem Prefab
+    public GameObject roomItemFactory;
+
+    //RoomListView -> Content -> RectTransform
+    public RectTransform rtContent;
+
+    private Dictionary<string, RoomInfo> roomCache = new Dictionary<string, RoomInfo>();
 
     private void Start()
     {
@@ -61,7 +73,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     public void JoinRoom()
     {
         //방 입장 요청
-        PhotonNetwork.JoinRoom(inputRoomName.text);
+        PhotonNetwork.JoinRoom(inputRoomName.text + inputPassword.text);
     }
 
     //방 입장 완료시 호출되는 함수
@@ -90,9 +102,75 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         //방 생성 요청
         roomOptions.IsOpen = false;
 
+        //custom 설정
+        ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
+        hash["room_name"] = inputRoomName.text;
+        hash["map_idx"] = 10;
+        hash["use_item"] = true;
+
+        //custom 설정을 option에 셋팅
+        roomOptions.CustomRoomProperties = hash;
+
+        //custom 정보를 lobby에서 사용할 수 있게 설정
+        string[] customKeys = { "room_name", "map_idx", "use_item" };
+        roomOptions.CustomRoomPropertiesForLobby = customKeys;
+
         //특정 로비에 방 생성 요청
         //TypedLobby typedLobby = new TypedLobby("Meta Lobby", LobbyType.Default);
-        PhotonNetwork.CreateRoom(inputRoomName.text, roomOptions);
+        PhotonNetwork.CreateRoom(inputRoomName.text + inputPassword.text, roomOptions);
+    }
+
+    private void RemoveRoomList()
+    {
+        //rtContent에 있는 자신 GameObject를 모두 삭제
+        foreach (Transform tr in rtContent)
+        {
+            Destroy(tr.gameObject);
+        }
+    }
+
+    private void UpdateRoomList(List<RoomInfo> roomList)
+    {
+        foreach (RoomInfo info in roomList)
+        {
+            //roomCache에 info의 방 이름으로 되어있는 Key 값 존재하니?
+            if (roomCache.ContainsKey(info.Name))
+            {
+                if (info.RemovedFromList)
+                {
+                    roomCache.Remove(info.Name);
+                    continue;
+                }
+            }
+            //추가, 삭제
+            roomCache[info.Name] = info;
+        }
+    }
+
+    private void CreateRoomList()
+    {
+        foreach (RoomInfo info in roomCache.Values)
+        {
+            GameObject goRoomItem = Instantiate(roomItemFactory, rtContent);
+            //만들어진 roomItem의 부모를 scrollView -> Content의 tranform으로 한다.
+            //goRoomItem.transform.parent = rtContent;
+
+            //custom 정보 뽑아오자.
+            string roomName = (string)(info.CustomProperties["room_name"]);
+            int mapIdx = (int)(info.CustomProperties["map_idx"]);
+            bool useItem = (bool)(info.CustomProperties["use_item"]);
+            //만들어진 roomItem에서 RoomItem 컴포넌트 가져온다.
+            RoomItem roomItem = goRoomItem.GetComponent<RoomItem>();
+            //가져온 컴포넌트가 가지고 있는 SetInfo 함수 실행
+            roomItem.SetInfo(info.Name, info.PlayerCount, info.MaxPlayers);
+            //RoomItem이 클릭 되었을 때 호출되는 함수 등록
+            roomItem.onChangeRoomName = OnChangeRoomNameField;
+
+            roomItem.onChangeRoomName = (string roomName) =>
+            {
+                inputRoomName.text = roomName;
+            };
+        }
     }
 
     //누군가가 방을 만들거나 수정했을 때 호출되는 함수
@@ -100,9 +178,16 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     {
         base.OnRoomListUpdate(roomList);
 
-        for (int i = 0; i < roomList.Count; i++)
-        {
-            print(i + "번째 방 : " + roomList[i].Name);
-        }
+        //전체 룸리스트UI 삭제
+        RemoveRoomList();
+        //내가 따로 관리하는 룸리스트 정보 갱신
+        UpdateRoomList(roomList);
+        //룸리스트 정보를 가지고 UI를 다시 생성
+        CreateRoomList();
+    }
+
+    public void OnChangeRoomNameField(string roomName)
+    {
+        inputRoomName.text = roomName;
     }
 }
