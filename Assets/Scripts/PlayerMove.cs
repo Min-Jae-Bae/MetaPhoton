@@ -99,6 +99,7 @@ public class PlayerMove : MonoBehaviourPun, IPunObservable
 
                 //점프 중이라고 설정
                 isJump = true;
+                SoundManager.instance.PlaySFX(SoundManager.ESfx.SFX_JUMP);
             }
             yVelocity += gravity * Time.deltaTime;
             dir.y = yVelocity;

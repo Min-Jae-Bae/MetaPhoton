@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        SoundManager.instance.PlayBGM(SoundManager.EBgm.BGM_GAME);
+
         PhotonNetwork.SendRate = 30;
         //OnPhotonSerializeView »£√‚ ∫Ûµµ
         PhotonNetwork.SerializationRate = 60;

@@ -1,9 +1,6 @@
 using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,6 +30,8 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        SoundManager.instance.PlayBGM(SoundManager.EBgm.BGM_LOBBY);
+
         //방 참여, 생성 비활성화
         btnJoinRoom.interactable = btnCreateRoom.interactable = false;
         //InputRoomName의 내용이 변경될 때 호출되는 함수
@@ -83,6 +82,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         print("방 입장 완료");
 
         //GameScene으로 이동
+        PhotonNetwork.LoadLevel("GameScene");
     }
 
     //방 입장 실패시 호출되는 함수
@@ -157,7 +157,7 @@ public class LobbyManager : MonoBehaviourPunCallbacks
 
             //custom 정보 뽑아오자.
             string roomName = (string)(info.CustomProperties["room_name"]);
-            int mapIdx = (int)(info.CustomProperties["map_idx"]);
+            //int mapIdx = (int)(info.CustomProperties["map_idx"]);
             bool useItem = (bool)(info.CustomProperties["use_item"]);
             //만들어진 roomItem에서 RoomItem 컴포넌트 가져온다.
             RoomItem roomItem = goRoomItem.GetComponent<RoomItem>();

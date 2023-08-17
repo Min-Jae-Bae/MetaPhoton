@@ -12,6 +12,8 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+
+        SoundManager.instance.PlayBGM(SoundManager.EBgm.BGM_CONNECTION);
         //닉네임의 내용이 변경될 때 호출되는 함수 등록
         inputNickName.onValueChanged.AddListener(onvalueChanged);
 
@@ -38,6 +40,8 @@ public class ConnectionManager : MonoBehaviourPunCallbacks
 
     public void OnClickConnect()
     {
+
+        SoundManager.instance.PlaySFX(SoundManager.ESfx.SFX_BUTTON);
         //서버 접속 요청
         PhotonNetwork.ConnectUsingSettings();
     }
